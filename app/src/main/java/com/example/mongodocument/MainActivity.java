@@ -33,10 +33,12 @@ import io.realm.Realm;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.Credentials;
+import io.realm.mongodb.RealmResultTask;
 import io.realm.mongodb.User;
 import io.realm.mongodb.mongo.MongoClient;
 import io.realm.mongodb.mongo.MongoCollection;
 import io.realm.mongodb.mongo.MongoDatabase;
+import io.realm.mongodb.mongo.iterable.MongoCursor;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -99,6 +101,19 @@ public class MainActivity extends AppCompatActivity {
 
                 njp+="/config";
                 getUrl(njp);
+                Document queryFilter  = new Document();
+                RealmResultTask<MongoCursor<Document>> findTask = mongoCollection.find(queryFilter).iterator();
+                findTask.getAsync(task -> {
+                    if (task.isSuccess()) {
+                        MongoCursor<Document> results = task.get();
+                        System.out.println(results);
+                        while (results.hasNext()) {
+                            Log.v("EXAMPLE", results.next().toString());
+                        }
+                    } else {
+                        Log.e("EXAMPLE", "failed to find documents with: ", task.getError());
+                    }
+                });
 
             }
         });
